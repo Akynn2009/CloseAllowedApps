@@ -58,7 +58,7 @@ function Invoke-EmbeddedUpdate {
             $downloadPath = "$currentExe.download"
             Invoke-WebRequest -Uri $manifest.downloadUrl -OutFile $downloadPath -UseBasicParsing
             $hash = (Get-FileHash -LiteralPath $downloadPath -Algorithm SHA256).Hash
-            if ($hash -ne ([string]$manifest.sha256).ToUpperInvariant()) { throw 'The downloaded update checksum does not match.' }
+            if ($hash -ne ([string]$manifest.sha256).Trim().ToUpperInvariant()) { throw 'The downloaded update checksum does not match.' }
             $progress.Value = 100
             $quotedDownloadPath = '"{0}"' -f $downloadPath
             $quotedTargetPath = '"{0}"' -f $currentExe
@@ -71,7 +71,7 @@ function Invoke-EmbeddedUpdate {
         }
     })
     [void]$form.ShowDialog()
-    return [bool]$script:UpdateStarted
+    return $true
 }
 
 $script:UpdateStarted = $false
