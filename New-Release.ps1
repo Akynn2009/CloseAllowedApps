@@ -17,6 +17,7 @@ if (-not (Get-Command Invoke-ps2exe -ErrorAction SilentlyContinue)) {
 
 $sourceText = Get-Content -LiteralPath $source -Raw
 $sourceText = [regex]::Replace($sourceText, "\$script:AppVersion = \[version\]'[^']+'", "`$script:AppVersion = [version]'$Version'", 1)
+$sourceText = [regex]::Replace($sourceText, "\$script:UpdateManifestUrl = '[^']+'", "`$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v$Version/update-manifest.json'", 1)
 Set-Content -LiteralPath $source -Value $sourceText -Encoding UTF8
 
 $buildText = Get-Content -LiteralPath $build -Raw

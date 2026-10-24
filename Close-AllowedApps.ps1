@@ -3,7 +3,7 @@ Add-Type -AssemblyName System.Drawing
 
 $script:AppDirectory = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent ([Diagnostics.Process]::GetCurrentProcess().MainModule.FileName) }
 $script:AppVersion = [version]'1.0.0'
-$script:UpdateManifestUrl = 'https://raw.githubusercontent.com/Akynn2009/CloseAllowedApps/main/update-manifest.json'
+$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.0/update-manifest.json'
 
 function Invoke-EmbeddedUpdate {
     param([string[]]$UpdateArgs)
