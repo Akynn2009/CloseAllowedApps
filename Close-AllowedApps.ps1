@@ -15,13 +15,13 @@ function Invoke-EmbeddedUpdate {
             try {
                 Move-Item -LiteralPath $downloadPath -Destination $targetPath -Force -ErrorAction Stop
                 Start-Process -FilePath $targetPath
-                exit
+                return $true
             }
             catch {
                 Start-Sleep -Milliseconds 250
             }
         }
-        exit 1
+        return $false
     }
 
     if ([IO.Path]::GetExtension($currentExe) -ne '.exe') { return }
@@ -60,19 +60,22 @@ function Invoke-EmbeddedUpdate {
             $hash = (Get-FileHash -LiteralPath $downloadPath -Algorithm SHA256).Hash
             if ($hash -ne ([string]$manifest.sha256).ToUpperInvariant()) { throw 'The downloaded update checksum does not match.' }
             $progress.Value = 100
-            Start-Process -FilePath $currentExe -ArgumentList @('-ApplyUpdate', $downloadPath, $currentExe)
+            $quotedDownloadPath = '"{0}"' -f $downloadPath
+            $quotedTargetPath = '"{0}"' -f $currentExe
+            Start-Process -FilePath $currentExe -ArgumentList @('-ApplyUpdate', $quotedDownloadPath, $quotedTargetPath)
             $form.Close()
-            exit
+            $script:UpdateStarted = $true
         }
         catch {
             [System.Windows.Forms.MessageBox]::Show($_.Exception.Message, 'Update failed') | Out-Null
         }
     })
     [void]$form.ShowDialog()
-    exit 1
+    return [bool]$script:UpdateStarted
 }
 
-Invoke-EmbeddedUpdate -UpdateArgs $args
+$script:UpdateStarted = $false
+if (Invoke-EmbeddedUpdate -UpdateArgs $args) { exit }
 
 # Add only apps you personally want to close. Use process names without .exe.
 # Windows Search and other operating-system processes are intentionally excluded.
