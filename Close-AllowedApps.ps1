@@ -1,6 +1,7 @@
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
+$script:AppDirectory = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent ([Diagnostics.Process]::GetCurrentProcess().MainModule.FileName) }
 $script:AppVersion = [version]'1.0.0'
 $script:UpdateManifestUrl = 'https://raw.githubusercontent.com/Akynn2009/CloseAllowedApps/main/update-manifest.json'
 
@@ -140,7 +141,7 @@ function Get-ProcessAnalysis {
 }
 
 function Get-CatalogueAnalysis {
-    $cataloguePath = Join-Path $PSScriptRoot 'catalogue_logiciels.csv'
+    $cataloguePath = Join-Path $script:AppDirectory 'catalogue_logiciels.csv'
     if (-not (Test-Path -LiteralPath $cataloguePath)) {
         throw "Catalog file not found: $cataloguePath"
     }
@@ -156,7 +157,7 @@ function Get-CatalogueAnalysis {
 }
 
 function Get-CatalogueRunningProcesses {
-    $cataloguePath = Join-Path $PSScriptRoot 'catalogue_logiciels.csv'
+    $cataloguePath = Join-Path $script:AppDirectory 'catalogue_logiciels.csv'
     $catalogue = @(Import-Csv -LiteralPath $cataloguePath)
     $aliases = @{
         'Microsoft.Edge' = 'msedge'
@@ -460,7 +461,7 @@ $analyzeButton.Add_Click({
             }
             $validCatalogueRows = @($catalogueRows | Where-Object { $_ -and $_.PSObject.Properties['PackageId'] })
             if ($validCatalogueRows.Count -eq 0) {
-                $cataloguePath = Join-Path $PSScriptRoot 'catalogue_logiciels.csv'
+                $cataloguePath = Join-Path $script:AppDirectory 'catalogue_logiciels.csv'
                 $catalogueRows = @(Import-Csv -LiteralPath $cataloguePath | ForEach-Object {
                     [pscustomobject]@{
                         PackageId = $_.PackageId
