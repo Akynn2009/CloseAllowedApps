@@ -314,6 +314,13 @@ $analyzeButton.Add_Click({
     $scanButton.Text = 'Scan again'
     $analysisForm.Controls.Add($scanButton)
 
+    $selectAllButton = New-Object System.Windows.Forms.Button
+    $selectAllButton.Location = New-Object System.Drawing.Point(290, 470)
+    $selectAllButton.Size = New-Object System.Drawing.Size(130, 32)
+    $selectAllButton.Anchor = 'Bottom,Left'
+    $selectAllButton.Text = 'Select all'
+    $analysisForm.Controls.Add($selectAllButton)
+
     $stopSelectedButton = New-Object System.Windows.Forms.Button
     $stopSelectedButton.Location = New-Object System.Drawing.Point(820, 470)
     $stopSelectedButton.Size = New-Object System.Drawing.Size(142, 32)
@@ -406,6 +413,18 @@ $analyzeButton.Add_Click({
                 $runningGrid.Rows[$index].Tag = $match
             }
             $runningForm.Controls.Add($runningGrid)
+
+            $selectRunningButton = New-Object System.Windows.Forms.Button
+            $selectRunningButton.Location = New-Object System.Drawing.Point(12, 320)
+            $selectRunningButton.Size = New-Object System.Drawing.Size(110, 32)
+            $selectRunningButton.Anchor = 'Bottom,Left'
+            $selectRunningButton.Text = 'Select all'
+            $runningForm.Controls.Add($selectRunningButton)
+            $selectRunningButton.Add_Click({
+                foreach ($row in $runningGrid.Rows) {
+                    $row.Cells['Select'].Value = $true
+                }
+            }.GetNewClosure())
 
             $forceButton = New-Object System.Windows.Forms.Button
             $forceButton.Location = New-Object System.Drawing.Point(590, 320)
@@ -531,6 +550,7 @@ $analyzeButton.Add_Click({
         ProcessProgress = $processProgress
         ScanButton = $scanButton
         StopSelectedButton = $stopSelectedButton
+        SelectAllButton = $selectAllButton
         CatalogueButton = $catalogueButton
         LoadingForm = $loadingForm
         LoadingProgress = $loadingProgress
@@ -546,6 +566,7 @@ $analyzeButton.Add_Click({
         $global:AnalyzerState.ProcessProgress.Style = 'Marquee'
         $global:AnalyzerState.ScanButton.Enabled = $false
         $global:AnalyzerState.StopSelectedButton.Enabled = $false
+        $global:AnalyzerState.SelectAllButton.Enabled = $false
         $global:AnalyzerState.CatalogueButton.Enabled = $false
         $global:AnalyzerState.Note.Text = 'Analyzing processes and checking signatures...'
 
@@ -565,6 +586,7 @@ $analyzeButton.Add_Click({
             param($sender, $eventArgs)
             $global:AnalyzerState.ScanButton.Enabled = $true
             $global:AnalyzerState.StopSelectedButton.Enabled = $true
+            $global:AnalyzerState.SelectAllButton.Enabled = $true
             $global:AnalyzerState.CatalogueButton.Enabled = $true
             $global:AnalyzerState.LoadingProgress.Style = 'Continuous'
             $global:AnalyzerState.LoadingProgress.Value = 100
@@ -612,6 +634,13 @@ $analyzeButton.Add_Click({
     $scan = $scan.GetNewClosure()
 
     $scanButton.Add_Click($scan.GetNewClosure())
+    $selectAllButton.Add_Click({
+        foreach ($row in $grid.Rows) {
+            if (-not $row.Cells['Select'].ReadOnly) {
+                $row.Cells['Select'].Value = $true
+            }
+        }
+    }.GetNewClosure())
     $stopSelectedButton.Add_Click({
         $selected = @($grid.Rows | Where-Object { $_.Cells['Select'].Value -eq $true -and $_.Tag.Category -ne 'Windows system' -and $protectedProcessNames -notcontains $_.Tag.Process })
         if ($selected.Count -eq 0) {
