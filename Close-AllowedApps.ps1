@@ -2,8 +2,8 @@
 Add-Type -AssemblyName System.Drawing
 
 $script:AppDirectory = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent ([Diagnostics.Process]::GetCurrentProcess().MainModule.FileName) }
-$script:AppVersion$script:AppVersion = [version]'1.0.1'
-$script:UpdateManifestUrl$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+$script:AppVersion = [version]'1.0.1'
+$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
 
 function Invoke-EmbeddedUpdate {
     param([string[]]$UpdateArgs)
@@ -26,7 +26,7 @@ function Invoke-EmbeddedUpdate {
 
     if ([IO.Path]::GetExtension($currentExe) -ne '.exe') { return }
     try {
-        $manifest = Invoke-RestMethod -Uri $script:UpdateManifestUrl -TimeoutSec 10
+        $manifest = Invoke-RestMethod -Uri  -TimeoutSec 10
         if ($script:AppVersion -ge [version]$manifest.latestVersion) { return }
     }
     catch {
@@ -34,10 +34,10 @@ function Invoke-EmbeddedUpdate {
     }
 
     $form = New-Object System.Windows.Forms.Form
-    $form.Text$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
-    $form.StartPosition$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+    $form.Text = 'Update required'
+    $form.StartPosition = 'CenterScreen'
     $form.ClientSize = New-Object System.Drawing.Size(440, 170)
-    $form.FormBorderStyle$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+    $form.FormBorderStyle = 'FixedDialog'
     $form.ControlBox = $false
     $label = New-Object System.Windows.Forms.Label
     $label.Location = New-Object System.Drawing.Point(18, 18)
@@ -51,7 +51,7 @@ function Invoke-EmbeddedUpdate {
     $button = New-Object System.Windows.Forms.Button
     $button.Location = New-Object System.Drawing.Point(310, 112)
     $button.Size = New-Object System.Drawing.Size(112, 32)
-    $button.Text$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+    $button.Text = 'Update now'
     $form.Controls.Add($button)
     $button.Add_Click({
         try {
@@ -60,8 +60,8 @@ function Invoke-EmbeddedUpdate {
             $hash = (Get-FileHash -LiteralPath $downloadPath -Algorithm SHA256).Hash
             if ($hash -ne ([string]$manifest.sha256).Trim().ToUpperInvariant()) { throw 'The downloaded update checksum does not match.' }
             $progress.Value = 100
-            $quotedDownloadPath$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json' -f $downloadPath
-            $quotedTargetPath$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json' -f $currentExe
+            $quotedDownloadPath = '"{0}"' -f $downloadPath
+            $quotedTargetPath = '"{0}"' -f $currentExe
             Start-Process -FilePath $currentExe -ArgumentList @('-ApplyUpdate', $quotedDownloadPath, $quotedTargetPath)
             $form.Close()
             $script:UpdateStarted = $true
@@ -97,16 +97,16 @@ function Get-ProcessAnalysis {
         $path = ''
         try { $path = $process.MainModule.FileName } catch { }
         $name = $process.ProcessName
-        $category$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
-        $reason$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+        $category
+        $reason
 
         if ($path -match '(?i)\\Windows\\|\\System32\\|\\SysWOW64\\|\\WinSxS\\') {
-            $category$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
-            $reason$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+            $category
+            $reason
         }
         elseif ($name -match '(?i)amd|radeon|adrenalin|nvidia|nvcontainer|intel|igfx|arc') {
-            $category$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
-            $reason$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+            $category
+            $reason
         }
         elseif ($path) {
             try {
@@ -118,17 +118,17 @@ function Get-ProcessAnalysis {
                     $signatureCache[$path] = $signature
                 }
                 if ($signature.Status -eq 'Valid' -and $signature.SignerCertificate.Subject -match '(?i)Microsoft') {
-                    $category$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
-                    $reason$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+                    $category
+                    $reason
                 }
                 else {
-                    $category$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
-                    $reason$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+                    $category
+                    $reason
                 }
             }
             catch {
-                $category$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
-                $reason$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+                $category
+                $reason
             }
         }
 
@@ -153,8 +153,8 @@ function Get-CatalogueAnalysis {
         [pscustomobject]@{
             PackageId = $package.PackageId
             CatalogueVersion = $package.Version
-            Status$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
-            WinGetResult$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+            Status = 'Catalog entry'
+            WinGetResult = 'Use Find running catalog apps to check active processes'
         }
     }
 }
@@ -163,8 +163,8 @@ function Get-CatalogueRunningProcesses {
     $cataloguePath = Join-Path $script:AppDirectory 'catalogue_logiciels.csv'
     $catalogue = @(Import-Csv -LiteralPath $cataloguePath)
     $aliases = @{
-        'Microsoft.Edge'$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
-        'Roblox.Roblox'$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+        'Microsoft.Edge' = 'msedge'
+        'Roblox.Roblox' = 'RobloxPlayerBeta'
     }
     $lookup = @{}
     foreach ($package in $catalogue) {
@@ -219,16 +219,16 @@ if ($unsafeNames.Count -gt 0) {
 }
 
 $form = New-Object System.Windows.Forms.Form
-$form.Text$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
-$form.StartPosition$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+$form.Text
+$form.StartPosition
 $form.ClientSize = New-Object System.Drawing.Size(470, 300)
-$form.FormBorderStyle$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+$form.FormBorderStyle
 $form.MaximizeBox = $false
 
 $intro = New-Object System.Windows.Forms.Label
 $intro.Location = New-Object System.Drawing.Point(16, 14)
 $intro.Size = New-Object System.Drawing.Size(438, 46)
-$intro.Text$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+$intro.Text
 $form.Controls.Add($intro)
 
 $appList = New-Object System.Windows.Forms.ListBox
@@ -239,19 +239,19 @@ $form.Controls.Add($appList)
 $refreshButton = New-Object System.Windows.Forms.Button
 $refreshButton.Location = New-Object System.Drawing.Point(16, 230)
 $refreshButton.Size = New-Object System.Drawing.Size(125, 34)
-$refreshButton.Text$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+$refreshButton.Text
 $form.Controls.Add($refreshButton)
 
 $analyzeButton = New-Object System.Windows.Forms.Button
 $analyzeButton.Location = New-Object System.Drawing.Point(151, 230)
 $analyzeButton.Size = New-Object System.Drawing.Size(125, 34)
-$analyzeButton.Text$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+$analyzeButton.Text
 $form.Controls.Add($analyzeButton)
 
 $closeButton = New-Object System.Windows.Forms.Button
 $closeButton.Location = New-Object System.Drawing.Point(329, 230)
 $closeButton.Size = New-Object System.Drawing.Size(125, 34)
-$closeButton.Text$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+$closeButton.Text
 $form.Controls.Add($closeButton)
 
 $refreshList = {
@@ -268,31 +268,31 @@ $refreshList = {
 $refreshButton.Add_Click($refreshList)
 $analyzeButton.Add_Click({
     $analysisForm = New-Object System.Windows.Forms.Form
-    $analysisForm.Text$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
-    $analysisForm.StartPosition$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+    $analysisForm.Text
+    $analysisForm.StartPosition
     $analysisForm.ClientSize = New-Object System.Drawing.Size(980, 520)
-    $analysisForm.FormBorderStyle$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+    $analysisForm.FormBorderStyle
 
     $note = New-Object System.Windows.Forms.Label
     $note.Location = New-Object System.Drawing.Point(12, 10)
     $note.Size = New-Object System.Drawing.Size(760, 34)
-    $note.Text$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+    $note.Text
     $analysisForm.Controls.Add($note)
 
     $processProgress = New-Object System.Windows.Forms.ProgressBar
     $processProgress.Location = New-Object System.Drawing.Point(780, 10)
     $processProgress.Size = New-Object System.Drawing.Size(182, 24)
-    $processProgress.Style$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+    $processProgress.Style
     $processProgress.MarqueeAnimationSpeed = 25
     $analysisForm.Controls.Add($processProgress)
 
     $grid = New-Object System.Windows.Forms.DataGridView
     $grid.Location = New-Object System.Drawing.Point(12, 58)
     $grid.Size = New-Object System.Drawing.Size(950, 397)
-    $grid.Anchor$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+    $grid.Anchor
     $grid.AllowUserToAddRows = $false
     $grid.ReadOnly = $false
-    $grid.SelectionMode$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+    $grid.SelectionMode
     $grid.AutoGenerateColumns = $false
     $grid.Columns.Add((New-Object System.Windows.Forms.DataGridViewCheckBoxColumn -Property @{Name='Select'; HeaderText='Stop'; Width=45})) | Out-Null
     foreach ($column in @(
@@ -310,55 +310,55 @@ $analyzeButton.Add_Click({
     $scanButton = New-Object System.Windows.Forms.Button
     $scanButton.Location = New-Object System.Drawing.Point(12, 470)
     $scanButton.Size = New-Object System.Drawing.Size(110, 32)
-    $scanButton.Anchor$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
-    $scanButton.Text$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+    $scanButton.Anchor
+    $scanButton.Text
     $analysisForm.Controls.Add($scanButton)
 
     $selectAllButton = New-Object System.Windows.Forms.Button
     $selectAllButton.Location = New-Object System.Drawing.Point(290, 470)
     $selectAllButton.Size = New-Object System.Drawing.Size(130, 32)
-    $selectAllButton.Anchor$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
-    $selectAllButton.Text$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+    $selectAllButton.Anchor
+    $selectAllButton.Text
     $analysisForm.Controls.Add($selectAllButton)
 
     $stopSelectedButton = New-Object System.Windows.Forms.Button
     $stopSelectedButton.Location = New-Object System.Drawing.Point(820, 470)
     $stopSelectedButton.Size = New-Object System.Drawing.Size(142, 32)
-    $stopSelectedButton.Anchor$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
-    $stopSelectedButton.Text$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+    $stopSelectedButton.Anchor
+    $stopSelectedButton.Text
     $analysisForm.Controls.Add($stopSelectedButton)
 
     $catalogueButton = New-Object System.Windows.Forms.Button
     $catalogueButton.Location = New-Object System.Drawing.Point(130, 470)
     $catalogueButton.Size = New-Object System.Drawing.Size(145, 32)
-    $catalogueButton.Anchor$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
-    $catalogueButton.Text$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+    $catalogueButton.Anchor
+    $catalogueButton.Text
     $analysisForm.Controls.Add($catalogueButton)
 
     $catalogueButton.Add_Click({
         $catalogueForm = New-Object System.Windows.Forms.Form
-        $catalogueForm.Text$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
-        $catalogueForm.StartPosition$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+        $catalogueForm.Text
+        $catalogueForm.StartPosition
         $catalogueForm.ClientSize = New-Object System.Drawing.Size(900, 600)
-        $catalogueForm.FormBorderStyle$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+        $catalogueForm.FormBorderStyle
 
         $catalogueStatus = New-Object System.Windows.Forms.Label
         $catalogueStatus.Location = New-Object System.Drawing.Point(12, 12)
         $catalogueStatus.Size = New-Object System.Drawing.Size(700, 24)
-        $catalogueStatus.Text$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+        $catalogueStatus.Text
         $catalogueForm.Controls.Add($catalogueStatus)
 
         $catalogueProgress = New-Object System.Windows.Forms.ProgressBar
         $catalogueProgress.Location = New-Object System.Drawing.Point(720, 12)
         $catalogueProgress.Size = New-Object System.Drawing.Size(168, 24)
-        $catalogueProgress.Style$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+        $catalogueProgress.Style
         $catalogueProgress.MarqueeAnimationSpeed = 25
         $catalogueForm.Controls.Add($catalogueProgress)
 
         $catalogueGrid = New-Object System.Windows.Forms.DataGridView
         $catalogueGrid.Location = New-Object System.Drawing.Point(12, 48)
         $catalogueGrid.Size = New-Object System.Drawing.Size(876, 484)
-        $catalogueGrid.Anchor$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+        $catalogueGrid.Anchor
         $catalogueGrid.ReadOnly = $true
         $catalogueGrid.AllowUserToAddRows = $false
         $catalogueGrid.AutoGenerateColumns = $false
@@ -375,8 +375,8 @@ $analyzeButton.Add_Click({
         $runningButton = New-Object System.Windows.Forms.Button
         $runningButton.Location = New-Object System.Drawing.Point(12, 545)
         $runningButton.Size = New-Object System.Drawing.Size(190, 32)
-        $runningButton.Anchor$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
-        $runningButton.Text$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+        $runningButton.Anchor
+        $runningButton.Text
         $catalogueForm.Controls.Add($runningButton)
 
         $runningButton.Add_Click({
@@ -387,18 +387,18 @@ $analyzeButton.Add_Click({
             }
 
             $runningForm = New-Object System.Windows.Forms.Form
-            $runningForm.Text$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
-            $runningForm.StartPosition$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+            $runningForm.Text
+            $runningForm.StartPosition
             $runningForm.ClientSize = New-Object System.Drawing.Size(760, 360)
-            $runningForm.FormBorderStyle$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+            $runningForm.FormBorderStyle
 
             $runningGrid = New-Object System.Windows.Forms.DataGridView
             $runningGrid.Location = New-Object System.Drawing.Point(12, 12)
             $runningGrid.Size = New-Object System.Drawing.Size(736, 292)
-            $runningGrid.Anchor$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+            $runningGrid.Anchor
             $runningGrid.AllowUserToAddRows = $false
             $runningGrid.AutoGenerateColumns = $false
-            $runningGrid.SelectionMode$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+            $runningGrid.SelectionMode
             $runningGrid.Columns.Add((New-Object System.Windows.Forms.DataGridViewCheckBoxColumn -Property @{Name='Select'; HeaderText='Stop'; Width=50})) | Out-Null
             foreach ($column in @(
                 @{Name='Process'; HeaderText='Process'; Width=180},
@@ -417,8 +417,8 @@ $analyzeButton.Add_Click({
             $selectRunningButton = New-Object System.Windows.Forms.Button
             $selectRunningButton.Location = New-Object System.Drawing.Point(12, 320)
             $selectRunningButton.Size = New-Object System.Drawing.Size(110, 32)
-            $selectRunningButton.Anchor$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
-            $selectRunningButton.Text$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+            $selectRunningButton.Anchor
+            $selectRunningButton.Text
             $runningForm.Controls.Add($selectRunningButton)
             $selectRunningButton.Add_Click({
                 foreach ($row in $runningGrid.Rows) {
@@ -429,8 +429,8 @@ $analyzeButton.Add_Click({
             $forceButton = New-Object System.Windows.Forms.Button
             $forceButton.Location = New-Object System.Drawing.Point(590, 320)
             $forceButton.Size = New-Object System.Drawing.Size(158, 32)
-            $forceButton.Anchor$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
-            $forceButton.Text$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+            $forceButton.Anchor
+            $forceButton.Text
             $runningForm.Controls.Add($forceButton)
             $forceButton.Add_Click({
                 $selectedRows = @($runningGrid.Rows | Where-Object { $_.Cells['Select'].Value -eq $true })
@@ -470,10 +470,10 @@ $analyzeButton.Add_Click({
         }.GetNewClosure())
         $worker.add_RunWorkerCompleted({
             param($sender, $eventArgs)
-            $catalogueProgress.Style$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+            $catalogueProgress.Style
             $catalogueProgress.Value = 100
             if ($eventArgs.Result -is [string]) {
-                $catalogueStatus.Text$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+                $catalogueStatus.Text
                 [System.Windows.Forms.MessageBox]::Show($eventArgs.Result, 'Catalog scan failed') | Out-Null
                 return
             }
@@ -488,8 +488,8 @@ $analyzeButton.Add_Click({
                     [pscustomobject]@{
                         PackageId = $_.PackageId
                         CatalogueVersion = $_.Version
-                        Status$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
-                        WinGetResult$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+                        Status = 'Not checked'
+                        WinGetResult = 'CSV entry loaded; detailed inventory unavailable'
                     }
                 })
             }
@@ -511,36 +511,36 @@ $analyzeButton.Add_Click({
         $catalogueForm.Add_FormClosing({
             if ($worker.IsBusy) {
                 $_.Cancel = $true
-                $catalogueStatus.Text$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+                $catalogueStatus.Text
             }
         }.GetNewClosure())
         [void]$catalogueForm.ShowDialog($analysisForm)
     })
 
     $loadingForm = New-Object System.Windows.Forms.Form
-    $loadingForm.Text$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
-    $loadingForm.StartPosition$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+    $loadingForm.Text
+    $loadingForm.StartPosition
     $loadingForm.ClientSize = New-Object System.Drawing.Size(430, 125)
-    $loadingForm.FormBorderStyle$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+    $loadingForm.FormBorderStyle
     $loadingForm.ControlBox = $false
 
     $loadingTitle = New-Object System.Windows.Forms.Label
     $loadingTitle.Location = New-Object System.Drawing.Point(18, 16)
     $loadingTitle.Size = New-Object System.Drawing.Size(394, 24)
-    $loadingTitle.Text$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+    $loadingTitle.Text
     $loadingForm.Controls.Add($loadingTitle)
 
     $loadingProgress = New-Object System.Windows.Forms.ProgressBar
     $loadingProgress.Location = New-Object System.Drawing.Point(18, 48)
     $loadingProgress.Size = New-Object System.Drawing.Size(394, 24)
-    $loadingProgress.Style$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+    $loadingProgress.Style
     $loadingProgress.MarqueeAnimationSpeed = 25
     $loadingForm.Controls.Add($loadingProgress)
 
     $loadingDetail = New-Object System.Windows.Forms.Label
     $loadingDetail.Location = New-Object System.Drawing.Point(18, 82)
     $loadingDetail.Size = New-Object System.Drawing.Size(394, 24)
-    $loadingDetail.Text$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+    $loadingDetail.Text
     $loadingForm.Controls.Add($loadingDetail)
 
     $scanWorker = $null
@@ -557,18 +557,18 @@ $analyzeButton.Add_Click({
         LoadingDetail = $loadingDetail
     }
     $global:AnalyzerState = $scanState
-    $global:ProcessScanJson$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+    $global:ProcessScanJson
     $scan = {
         if ($scanWorker -and $scanWorker.IsBusy) { return }
         $global:AnalyzerState.Grid.Rows.Clear()
         $global:AnalyzerState.Grid.Visible = $false
         $global:AnalyzerState.ProcessProgress.Visible = $true
-        $global:AnalyzerState.ProcessProgress.Style$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+        $global:AnalyzerState.ProcessProgress.Style
         $global:AnalyzerState.ScanButton.Enabled = $false
         $global:AnalyzerState.StopSelectedButton.Enabled = $false
         $global:AnalyzerState.SelectAllButton.Enabled = $false
         $global:AnalyzerState.CatalogueButton.Enabled = $false
-        $global:AnalyzerState.Note.Text$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+        $global:AnalyzerState.Note.Text
 
         $scanWorker = New-Object System.ComponentModel.BackgroundWorker
         $scanWorker.add_DoWork({
@@ -588,14 +588,14 @@ $analyzeButton.Add_Click({
             $global:AnalyzerState.StopSelectedButton.Enabled = $true
             $global:AnalyzerState.SelectAllButton.Enabled = $true
             $global:AnalyzerState.CatalogueButton.Enabled = $true
-            $global:AnalyzerState.LoadingProgress.Style$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+            $global:AnalyzerState.LoadingProgress.Style
             $global:AnalyzerState.LoadingProgress.Value = 100
-            $global:AnalyzerState.LoadingDetail.Text$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
-            $global:AnalyzerState.ProcessProgress.Style$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+            $global:AnalyzerState.LoadingDetail.Text
+            $global:AnalyzerState.ProcessProgress.Style
             $global:AnalyzerState.ProcessProgress.Value = 100
             if ($eventArgs.Result -is [string]) {
-                $global:AnalyzerState.Note.Text$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
-                $global:AnalyzerState.LoadingDetail.Text$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+                $global:AnalyzerState.Note.Text
+                $global:AnalyzerState.LoadingDetail.Text
                 [System.Windows.Forms.MessageBox]::Show($eventArgs.Result, 'Process scan failed') | Out-Null
                 $global:AnalyzerState.LoadingForm.Close()
                 return
@@ -607,8 +607,8 @@ $analyzeButton.Add_Click({
                     [pscustomobject]@{
                         Process = $_.ProcessName
                         PID = $_.Id
-                        Category$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
-                        Reason$script:UpdateManifestUrl = 'https://github.com/Akynn2009/CloseAllowedApps/releases/download/v1.0.1/update-manifest.json'
+                        Category = 'Unknown / review'
+                        Reason = 'Basic process listing; detailed scan data unavailable'
                         Path = ''
                     }
                 })
