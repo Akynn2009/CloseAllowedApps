@@ -1,4 +1,4 @@
-$ErrorActionPreference = 'Stop'
+﻿$ErrorActionPreference = 'Stop'
 $root = $PSScriptRoot
 
 if (-not (Get-Command Invoke-ps2exe -ErrorAction SilentlyContinue)) {
@@ -9,5 +9,6 @@ if (-not (Get-Command Invoke-ps2exe -ErrorAction SilentlyContinue)) {
 $source = Join-Path $root 'Close-AllowedApps.ps1'
 $output = Join-Path $root 'CloseAllowedApps.exe'
 $catalogue = Join-Path $root 'catalogue_logiciels.csv'
-Invoke-ps2exe -InputFile $source -OutputFile $output -STA -NoConsole -Title 'Close configured apps' -Product 'Close configured apps' -Version '1.0.0' -embedFiles @{'.\catalogue_logiciels.csv' = $catalogue}
+Invoke-ps2exe -InputFile $source -OutputFile $output -STA -NoConsole -Title 'Close configured apps' -Product 'Close configured apps' -Version '1.0.1' -embedFiles @{'.\catalogue_logiciels.csv' = $catalogue}
 Write-Host "Built: $output"
+
