@@ -1,6 +1,78 @@
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
+$script:AppVersion = [version]'1.0.0'
+$script:UpdateManifestUrl = 'https://raw.githubusercontent.com/Akynn2009/CloseAllowedApps/main/update-manifest.json'
+
+function Invoke-EmbeddedUpdate {
+    param([string[]]$UpdateArgs)
+    $currentExe = [Diagnostics.Process]::GetCurrentProcess().MainModule.FileName
+    if ($UpdateArgs.Count -gt 0 -and $UpdateArgs[0] -eq '-ApplyUpdate') {
+        $downloadPath = $UpdateArgs[1]
+        $targetPath = $UpdateArgs[2]
+        for ($attempt = 0; $attempt -lt 20; $attempt++) {
+            try {
+                Move-Item -LiteralPath $downloadPath -Destination $targetPath -Force -ErrorAction Stop
+                Start-Process -FilePath $targetPath
+                exit
+            }
+            catch {
+                Start-Sleep -Milliseconds 250
+            }
+        }
+        exit 1
+    }
+
+    if ([IO.Path]::GetExtension($currentExe) -ne '.exe') { return }
+    try {
+        $manifest = Invoke-RestMethod -Uri $script:UpdateManifestUrl -TimeoutSec 10
+        if ($script:AppVersion -ge [version]$manifest.latestVersion) { return }
+    }
+    catch {
+        return
+    }
+
+    $form = New-Object System.Windows.Forms.Form
+    $form.Text = 'Update required'
+    $form.StartPosition = 'CenterScreen'
+    $form.ClientSize = New-Object System.Drawing.Size(440, 170)
+    $form.FormBorderStyle = 'FixedDialog'
+    $form.ControlBox = $false
+    $label = New-Object System.Windows.Forms.Label
+    $label.Location = New-Object System.Drawing.Point(18, 18)
+    $label.Size = New-Object System.Drawing.Size(404, 42)
+    $label.Text = "A required update to version $($manifest.latestVersion) is available. Update before continuing."
+    $form.Controls.Add($label)
+    $progress = New-Object System.Windows.Forms.ProgressBar
+    $progress.Location = New-Object System.Drawing.Point(18, 68)
+    $progress.Size = New-Object System.Drawing.Size(404, 22)
+    $form.Controls.Add($progress)
+    $button = New-Object System.Windows.Forms.Button
+    $button.Location = New-Object System.Drawing.Point(310, 112)
+    $button.Size = New-Object System.Drawing.Size(112, 32)
+    $button.Text = 'Update now'
+    $form.Controls.Add($button)
+    $button.Add_Click({
+        try {
+            $downloadPath = "$currentExe.download"
+            Invoke-WebRequest -Uri $manifest.downloadUrl -OutFile $downloadPath -UseBasicParsing
+            $hash = (Get-FileHash -LiteralPath $downloadPath -Algorithm SHA256).Hash
+            if ($hash -ne ([string]$manifest.sha256).ToUpperInvariant()) { throw 'The downloaded update checksum does not match.' }
+            $progress.Value = 100
+            Start-Process -FilePath $currentExe -ArgumentList @('-ApplyUpdate', $downloadPath, $currentExe)
+            $form.Close()
+            exit
+        }
+        catch {
+            [System.Windows.Forms.MessageBox]::Show($_.Exception.Message, 'Update failed') | Out-Null
+        }
+    })
+    [void]$form.ShowDialog()
+    exit 1
+}
+
+Invoke-EmbeddedUpdate -UpdateArgs $args
+
 # Add only apps you personally want to close. Use process names without .exe.
 # Windows Search and other operating-system processes are intentionally excluded.
 $script:AllowedProcessNames = @(
